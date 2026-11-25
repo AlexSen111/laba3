@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from dataclasses import field
 from uuid import uuid4
 
+from errors import BrokenFile
 from errors import IncorrectEntity
 
 
@@ -37,3 +38,52 @@ class Book:
             raise IncorrectEntity(f"Ошибка: Год написания {self.year} отрицателен или больше текущего 2026 года")
         if not isinstance(self.page_count, int) or self.page_count < 1:
             raise IncorrectEntity("Ошибка: Количество страниц должно быть целым числом, большим нуля")
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.book_id,
+            "title": self.title,
+            "category": self.category,
+            "author": self.author,
+            "year": self.year,
+            "page_count": self.page_count,
+            "original_language": self.original_language,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Book":
+        """Восстановление из JSON: id берётся из документа, а не генерируется снова
+        Id генерируется в классе Book, а не передаётся пользователем, а при попытке восстановить книгу из JSON мы генерируем новую книгу с данными из словаря
+        Поэтому id получается новым и не соответствует сохранённому, из-за чего мы его пересохраняем отдельно
+        Args:
+            data (dict): данные о книге (без id)
+
+        Raises:
+            BrokenFile: отсутствие поля
+            BrokenFile: есть все ключи, но неправильные значения
+            BrokenFile: отсутствие id или он неверен
+
+        Returns:
+            Book: из словаря получаем объект класса Book с привязанным к нему правильным id
+        """
+        try:
+            book = cls(
+                title=data["title"],
+                category=data["category"],
+                year=data["year"],
+                author=data["author"],
+                original_language=data["original_language"],
+                pag_count=data["page_count"],
+            )
+        except KeyError as e:
+            raise BrokenFile(f"в записи отсутствует поле: {e}") from e
+        except IncorrectEntity as e:
+            raise BrokenFile(f"невалидная запись: {e}") from e
+
+        # Замена ненужного id на сохранённый
+        saved_id = data.get("id")
+        # Проверка (на всякий случай)
+        if not isinstance(saved_id, str) or not saved_id.strip():
+            raise BrokenFile("в записи отсутствует или некорректен id")
+        book.book_id = saved_id
+        return book
