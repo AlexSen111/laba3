@@ -14,7 +14,7 @@ class ObjectNotFound(CatalogError):
     pass
 
 
-class FormatNotSupported(CatalogError):
+class UnsupportedFormatVersion(CatalogError):
     pass
 
 

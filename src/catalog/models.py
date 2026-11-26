@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from dataclasses import field
 from uuid import uuid4
 
-from errors import BrokenFile
-from errors import IncorrectEntity
+from .errors import BrokenFile
+from .errors import IncorrectEntity
 
 
 def generate_id() -> str:
