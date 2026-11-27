@@ -7,6 +7,11 @@ from .errors import IncorrectEntity
 
 
 def generate_id() -> str:
+    """Генерирует случайный ID
+
+    Returns:
+        str: Случайный ID
+    """
     return uuid4().hex
 
 
@@ -24,6 +29,17 @@ class Book:
         self._validate()
 
     def _validate(self) -> None:
+        """Валидация при создании сущности Book
+
+        Raises:
+            IncorrectEntity: Неправильный ID
+            IncorrectEntity: Неправильное название
+            IncorrectEntity: Неправильный автор
+            IncorrectEntity: Неправильный жанр/категория
+            IncorrectEntity: Неправильный язык оригинала книги
+            IncorrectEntity: Неправильный год (больше текущего)
+            IncorrectEntity: Кол-во страниц меньше нуля
+        """
         if not isinstance(self.book_id, str) or len(self.book_id.strip()) == 0:
             raise IncorrectEntity("Ошибка: ID книги должен быть непустой строкой")
         if not isinstance(self.title, str) or len(self.title.strip()) == 0:
@@ -40,6 +56,11 @@ class Book:
             raise IncorrectEntity("Ошибка: Количество страниц должно быть целым числом, большим нуля")
 
     def to_dict(self) -> dict:
+        """Функция, превращающая объект класса Book в словарь
+
+        Returns:
+            dict: словарь со всеми полями класса Book
+        """
         return {
             "id": self.book_id,
             "title": self.title,
@@ -73,7 +94,7 @@ class Book:
                 year=data["year"],
                 author=data["author"],
                 original_language=data["original_language"],
-                pag_count=data["page_count"],
+                page_count=data["page_count"],
             )
         except KeyError as e:
             raise BrokenFile(f"в записи отсутствует поле: {e}") from e
