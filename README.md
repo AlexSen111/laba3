@@ -27,6 +27,7 @@
 ## Запуск тестов
 
 Из корня проекта на Windows:
+```bash
 python -m venv venv
 .\venv\Scripts\activate
 pip install "pytest>=8.3.5,<9"
